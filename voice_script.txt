@@ -1,0 +1,91 @@
+VOICE PROFILE RECORDING GUIDE
+=============================
+
+THE NATURAL CONVERSATION METHOD
+-------------------------------
+The absolute best way to create a voice profile is to record yourself in natural conversation.
+Your voice changes dramatically when reading vs. speaking naturally - and the synthesis
+model will capture whatever patterns you give it.
+
+RECOMMENDED APPROACH: Phone Call Recording
+------------------------------------------
+1. Call a friend or family member (use headphones so only your voice is recorded)
+2. Aim for 10-15 minutes of conversation (to get 5+ minutes of your speaking)
+3. Let the conversation flow naturally - this captures your real voice
+
+CONVERSATION TOPICS TO COVER:
+• Catch up on recent events in your lives
+• Share a funny story or memory
+• Explain something you're passionate about
+• Ask their advice on something
+• Discuss weekend or vacation plans
+• Talk about a movie, book, or show you both know
+• Share what you've been learning or working on
+
+ALTERNATIVE SOLO RECORDING OPTIONS:
+-----------------------------------
+If a phone call isn't practical, try these natural speaking exercises:
+
+1. **Explain a Process** (2-3 minutes)
+   - Pick something you know well (cooking a dish, using software, a hobby)
+   - Explain it as if teaching a friend who asked for help
+   - Include "so first you...", "then make sure to...", "the tricky part is..."
+
+2. **Tell Stories** (2-3 minutes)
+   - A funny thing that happened recently
+   - A travel experience
+   - A childhood memory
+   - Meeting someone interesting
+
+3. **Voice Messages** (2-3 minutes)
+   - Pretend you're leaving a long voicemail for a friend
+   - Update them on your life
+   - Ask about their life
+   - Make plans together
+
+4. **Opinion Pieces** (1-2 minutes)
+   - Your thoughts on a recent movie or book
+   - Why you love/hate something specific
+   - Your take on a current event (non-controversial)
+   - Restaurant or product recommendations
+
+5. **Daily Narration** (1-2 minutes)
+   - Describe your morning routine as you do it
+   - Narrate making your favorite meal
+   - Walk through your workspace explaining things
+
+TECHNICAL RECORDING TIPS:
+------------------------
+• Use headphones for phone calls (prevents recording the other person)
+• Position mic 6-8 inches from mouth
+• Find a quiet room with soft furnishings (reduces echo)
+• Record in your normal speaking position (sitting/standing as usual)
+• Don't worry about "um"s and "uh"s - they're part of natural speech
+
+WHAT TO AVOID:
+-------------
+• Reading from a script
+• Using a "presentation voice"
+• Speaking unusually clearly or slowly
+• Trying to sound "professional"
+• Forcing emotions or expressions
+
+QUALITY CHECK:
+-------------
+After recording, test with English translation. Ask yourself:
+• Does this sound like me in normal conversation?
+• Would my friends recognize this as my natural voice?
+• Are there varied emotions and tones?
+
+Remember: The goal is to capture how you ACTUALLY speak, not how you think
+you should sound. Natural is always better than perfect.
+
+QUICK CHECKLIST:
+---------------
+□ 5+ minutes of your natural speech
+□ Varied emotions and situations
+□ Normal speaking pace and style
+□ Clear recording without echo
+□ Tested with English to verify quality
+
+The more natural and relaxed you are, the better your results will be!
