@@ -1,0 +1,123 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Virtual environments
+echotranslate-env/
+.conda/
+conda-env/
+miniconda*/
+anaconda*/
+
+# User data and outputs
+voices/*
+!voices/.gitkeep
+!voices/demo_voice.wav
+output/*
+!output/.gitkeep
+transcript.txt
+
+# Development notes
+*.md
+!README.md
+!LICENSE
+
+# IDE directories  
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+*.db
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+/tmp/
+/temp/
+.temp/
+
+# Model files (large binary files)
+*.pth
+*.pt
+*.bin
+*.h5
+*.pkl
+*.pickle
+*.onnx
+*.tflite
+*.safetensors
+model_cache/
+models/
+*.model
+~/.cache/whisper/
+.cache/
+
+# Audio files (except demo)
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.aac
+*.opus
+*.webm
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+echotranslate.backup*
+
+# Personal test files
+test_*.py
+test_*.txt
+personal_*.wav
+my_*.wav
+
+# Claude session notes
+CLAUDE_SESSION_NOTES.md
+FILE_REVIEW.md
+
+# Whisper cache
+whisper_cache/
+*.whisper
