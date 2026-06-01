@@ -33,10 +33,7 @@ ProgressCallback = Callable[[str], None]
 
 
 class VoiceSynthesizer:
-    """Lazy wrapper around the XTTS model.
-
-    Constructing this does not import or load anything; call :meth:`load` first.
-    """
+    """Lazy wrapper around the XTTS model; call :meth:`load` first."""
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -44,18 +41,13 @@ class VoiceSynthesizer:
 
     @property
     def is_loaded(self) -> bool:
-        """Whether the model has been loaded into memory."""
         return self._model is not None
 
     def load(self, *, progress: ProgressCallback | None = None) -> None:
         """Import and load the XTTS model.
 
-        Args:
-            progress: Optional callback for a "loading..." status message.
-
-        Raises:
-            HeavyDependencyError: If the ``voice`` extra is not installed.
-            ModelNotAvailableError: If the XTTS weights are not on disk.
+        Raises HeavyDependencyError if the ``voice`` extra is missing, or
+        ModelNotAvailableError if the weights are not on disk.
         """
         if self._model is not None:
             return
@@ -89,19 +81,9 @@ class VoiceSynthesizer:
         language: Language,
         output_path: Path,
     ) -> Path:
-        """Render ``text`` in the speaker's voice and write it to ``output_path``.
+        """Render ``text`` in the speaker's voice to ``output_path`` and return it.
 
-        Args:
-            text: Text to speak, already in the target language.
-            speaker_wav: Reference recording that defines the cloned voice.
-            language: Target language (its ``xtts_code`` is passed to the model).
-            output_path: Destination WAV path; its parent is created if needed.
-
-        Returns:
-            ``output_path``.
-
-        Raises:
-            ModelNotAvailableError: If :meth:`load` has not been called.
+        ``language.xtts_code`` chooses the synthesis language. Call :meth:`load` first.
         """
         if self._model is None:
             raise ModelNotAvailableError("Call load() before synthesizing.")

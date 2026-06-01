@@ -40,13 +40,12 @@ class PitchContour:
 
     @property
     def voiced_f0(self) -> np.ndarray:
-        """Voiced frequencies in time order, with unvoiced frames removed."""
         voiced: np.ndarray = self.f0[~np.isnan(self.f0)]
         return voiced
 
     @property
     def has_pitch(self) -> bool:
-        """Whether at least two voiced frames were found."""
+        # Two voiced frames is the floor for a comparable contour.
         return int(np.count_nonzero(~np.isnan(self.f0))) >= 2
 
 

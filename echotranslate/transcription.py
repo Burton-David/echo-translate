@@ -2,9 +2,9 @@
 
 faster-whisper runs Whisper through CTranslate2, which is several times quicker
 than the reference implementation and lets us load an int8-quantised model for
-low-latency transcription on CPU (and float-precision on CUDA via
-``device="auto"``). The library is imported lazily inside
-:meth:`SpeechTranscriber.load` so the package installs and tests without it.
+low-latency transcription on CPU (and float precision on CUDA via
+``device="auto"``). The library is imported lazily in :meth:`SpeechTranscriber.load`
+so the package installs and tests without it.
 
 Audio is passed as an in-memory float32 array, and faster-whisper bundles its own
 media decoding (PyAV), so no system ffmpeg is required.
@@ -26,22 +26,14 @@ ProgressCallback = Callable[[str], None]
 
 @dataclass(frozen=True)
 class TranscriptionResult:
-    """The outcome of transcribing one audio segment.
-
-    Attributes:
-        text: The recognised text, stripped of surrounding whitespace.
-        language: The detected source-language code (e.g. ``"en"``).
-    """
+    """Recognised text plus the detected source-language code (e.g. ``"en"``)."""
 
     text: str
     language: str
 
 
 class SpeechTranscriber:
-    """Lazy wrapper around a faster-whisper model.
-
-    Constructing this does not import or load anything; call :meth:`load` first.
-    """
+    """Lazy wrapper around a faster-whisper model; call :meth:`load` first."""
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -49,19 +41,13 @@ class SpeechTranscriber:
 
     @property
     def is_loaded(self) -> bool:
-        """Whether the model has been loaded into memory."""
         return self._model is not None
 
     def load(self, *, progress: ProgressCallback | None = None) -> None:
-        """Import faster-whisper and load the configured model.
+        """Import faster-whisper and load the model.
 
-        Args:
-            progress: Optional callback for a "loading..." status message.
-
-        Raises:
-            HeavyDependencyError: If the ``voice`` extra is not installed.
-            ModelNotAvailableError: If the model weights cannot be found or
-                downloaded.
+        Raises HeavyDependencyError if the ``voice`` extra is missing, or
+        ModelNotAvailableError if the weights cannot be found or downloaded.
         """
         if self._model is not None:
             return
@@ -90,17 +76,7 @@ class SpeechTranscriber:
             ) from exc
 
     def transcribe(self, audio: np.ndarray) -> TranscriptionResult:
-        """Transcribe a mono float32 audio array.
-
-        Args:
-            audio: Samples at 16 kHz (Whisper's expected rate).
-
-        Returns:
-            The recognised text and detected language.
-
-        Raises:
-            ModelNotAvailableError: If :meth:`load` has not been called.
-        """
+        """Transcribe a mono float32 array (16 kHz). Call :meth:`load` first."""
         if self._model is None:
             raise ModelNotAvailableError("Call load() before transcribing.")
         samples = np.asarray(audio, dtype=np.float32).reshape(-1)

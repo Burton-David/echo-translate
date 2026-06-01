@@ -63,7 +63,6 @@ def _language_from_clip(path: Path) -> Language | None:
 
 
 def _colorize_contour(line: str) -> str:
-    """Apply rich colour markup to the markers in a contour-chart line."""
     palette = {
         "#": "[green]#[/green]",
         "o": "[cyan]o[/cyan]",
@@ -269,7 +268,6 @@ class TUI:
         self._pause()
 
     def _saved_clips(self) -> list[Path]:
-        """Return saved output clips, most recent first."""
         return sorted(
             self.settings.output_dir.rglob("*.wav"),
             key=lambda path: path.stat().st_mtime,
@@ -390,19 +388,16 @@ class TUI:
         return by_menu_number(int(choice))
 
     def _synth(self) -> VoiceSynthesizer:
-        """Return the shared, lazily-created synthesizer."""
         if self._synthesizer is None:
             self._synthesizer = VoiceSynthesizer(self.settings)
         return self._synthesizer
 
     def _transcribe(self) -> SpeechTranscriber:
-        """Return the shared, lazily-created transcriber."""
         if self._transcriber is None:
             self._transcriber = SpeechTranscriber(self.settings)
         return self._transcriber
 
     def _render_menu(self) -> None:
-        """Print the banner, known voices, and the main menu."""
         self.console.print(Panel(_BANNER, style="bold cyan"))
         voices = list_voices(self.settings)
         if voices:
@@ -421,20 +416,16 @@ class TUI:
         self.console.print("  6. Exit\n")
 
     def _header(self, title: str) -> None:
-        """Print a screen header panel."""
         self.console.print(Panel(title, style="bold green"))
 
     def _status(self, message: str) -> None:
-        """Print a dim progress line (used as a progress callback)."""
         self.console.print(f"[dim]{message}[/dim]")
 
     def _confirm(self, question: str) -> bool:
-        """Ask a yes/no question, defaulting to yes."""
         answer = Prompt.ask(
             question, choices=["y", "n"], default="y", console=self.console
         )
         return answer == "y"
 
     def _pause(self) -> None:
-        """Wait for the user to acknowledge before returning to the menu."""
         self.console.input("\nPress Enter to continue...")

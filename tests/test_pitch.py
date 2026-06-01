@@ -64,6 +64,8 @@ def test_compare_is_register_invariant() -> None:
     deep_attempt = extract_f0(_glide(110.0, 140.0), _SR)
     result = compare_contours(target, deep_attempt)
     assert result.enough_data
+    # Median-relative normalisation cancels the ~7 semitone register gap, so the
+    # shape match stays high; 70 is a deliberately lenient floor.
     assert result.match > 70.0
 
 
