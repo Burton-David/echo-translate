@@ -212,11 +212,14 @@ def detect_speech_segments(
     sample_rate: int,
     volume_threshold: float = 0.01,
     silence_seconds: float = 1.5,
+    min_speech_seconds: float = 0.0,
 ) -> Iterator[np.ndarray]:
     """Group a stream of audio chunks into spoken segments by silence.
 
     A segment starts when a chunk's loudness (RMS) crosses ``volume_threshold``
-    and ends after ``silence_seconds`` of quiet. This is the pure form of the
+    and ends after ``silence_seconds`` of quiet. Segments with less than
+    ``min_speech_seconds`` of actual voiced audio are dropped, which keeps brief
+    noises from triggering a needless transcription. This is the pure form of the
     live-mode listening loop, with no device or queue involved.
 
     Args:
@@ -224,12 +227,14 @@ def detect_speech_segments(
         sample_rate: Sample rate of the chunks in hertz.
         volume_threshold: RMS above which a chunk counts as speech.
         silence_seconds: Trailing quiet needed to close a segment.
+        min_speech_seconds: Minimum voiced duration for a segment to be emitted.
 
     Yields:
         One concatenated float32 array per detected segment.
     """
     buffer: list[np.ndarray] = []
     silence = 0.0
+    voiced = 0.0
     speaking = False
 
     for raw in chunks:
@@ -242,15 +247,18 @@ def detect_speech_segments(
         if rms > volume_threshold:
             speaking = True
             silence = 0.0
+            voiced += seconds
             buffer.append(chunk)
         elif speaking:
             silence += seconds
             buffer.append(chunk)
             if silence >= silence_seconds:
-                yield np.concatenate(buffer)
+                if voiced >= min_speech_seconds:
+                    yield np.concatenate(buffer)
                 buffer = []
                 silence = 0.0
+                voiced = 0.0
                 speaking = False
 
-    if speaking and buffer:
+    if speaking and buffer and voiced >= min_speech_seconds:
         yield np.concatenate(buffer)

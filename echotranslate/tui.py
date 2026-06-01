@@ -30,7 +30,9 @@ from echotranslate.audio import (
     write_wav,
 )
 from echotranslate.config import (
+    LIVE_MIN_SPEECH_SECONDS,
     LIVE_SAMPLE_RATE,
+    LIVE_SILENCE_SECONDS,
     RECORD_SAMPLE_RATE,
     Settings,
     build_output_path,
@@ -223,6 +225,8 @@ class TUI:
             for segment in detect_speech_segments(
                 microphone_chunks(LIVE_SAMPLE_RATE, chunk_frames=chunk_frames),
                 sample_rate=LIVE_SAMPLE_RATE,
+                silence_seconds=LIVE_SILENCE_SECONDS,
+                min_speech_seconds=LIVE_MIN_SPEECH_SECONDS,
             ):
                 self._handle_live_segment(segment, voice, language)
         except KeyboardInterrupt:

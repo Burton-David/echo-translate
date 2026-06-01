@@ -27,7 +27,7 @@ from echotranslate.synthesis import VoiceSynthesizer
 from echotranslate.transcription import SpeechTranscriber
 
 _HAS_TTS = importlib.util.find_spec("TTS") is not None
-_HAS_WHISPER = importlib.util.find_spec("whisper") is not None
+_HAS_WHISPER = importlib.util.find_spec("faster_whisper") is not None
 
 
 def test_synthesizer_missing_extra_is_actionable(
@@ -63,7 +63,7 @@ def test_synthesize_before_load_raises(settings: Settings, tmp_path) -> None:
 def test_transcriber_missing_extra_is_actionable(
     monkeypatch: pytest.MonkeyPatch, settings: Settings
 ) -> None:
-    monkeypatch.setitem(sys.modules, "whisper", None)
+    monkeypatch.setitem(sys.modules, "faster_whisper", None)
     with pytest.raises(HeavyDependencyError) as info:
         SpeechTranscriber(settings).load()
     assert "echotranslate[voice]" in str(info.value)
