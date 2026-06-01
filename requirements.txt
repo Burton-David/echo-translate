@@ -1,8 +1,0 @@
-TTS==0.22.0
-openai-whisper
-argostranslate
-sounddevice
-soundfile
-rich
-numpy==1.26.4
-transformers==4.41.2

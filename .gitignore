@@ -16,6 +16,7 @@ htmlcov/
 .ipynb_checkpoints/
 
 # Virtual environments
+.venv/
 echotranslate-env/
 .conda/
 conda-env/
@@ -30,10 +31,9 @@ output/*
 !output/.gitkeep
 transcript.txt
 
-# Development notes
-*.md
-!README.md
-!LICENSE
+# Ignore scratch markdown notes at the repo root; keep the README tracked.
+/*.md
+!/README.md
 
 # IDE directories  
 .vscode/
@@ -108,15 +108,9 @@ models/
 *.orig
 echotranslate.backup*
 
-# Personal test files
-test_*.py
-test_*.txt
+# Personal recordings
 personal_*.wav
 my_*.wav
-
-# Claude session notes
-CLAUDE_SESSION_NOTES.md
-FILE_REVIEW.md
 
 # Whisper cache
 whisper_cache/
