@@ -33,6 +33,11 @@ quiet and joining the conversation.
 - **Speaks the translation in your cloned voice** using Coqui XTTS v2 (via the
   community-maintained [`coqui-tts`](https://github.com/idiap/coqui-ai-TTS) fork)
   and saves each clip under `output/<date>/`.
+- **Compares your pitch against the target.** Record yourself saying the phrase
+  and it charts your pitch contour over the target's, with a match score. The
+  contours are normalised so a deep voice and a high one are judged on shape, not
+  height. This is most useful for tonal languages like Mandarin, where the tones
+  *are* pitch shapes.
 - **Live mode:** speak into the mic, and it transcribes you with
   [Whisper](https://github.com/openai/whisper), translates, and replies in your
   voice.
@@ -118,10 +123,14 @@ Run `echotranslate` and choose from the menu:
    better. See [`voice_script.txt`](voice_script.txt) for guidance on what to say.
 2. **Translate text and speak it.** Choose a voice and target language, type
    English, and hear it back. Clips are saved to
-   `output/<date>/<time>_<voice>_<lang>.wav`.
-3. **Live translation.** Speak; it transcribes, translates, and replies in your
+   `output/<date>/<time>_<voice>_<lang>.wav`. You can practise your pronunciation
+   straight afterwards.
+3. **Practice pronunciation.** Pick a saved clip, record yourself saying it, and
+   see your pitch contour drawn over the target's with a match score. The score is
+   a pitch-shape similarity, not a full pronunciation grade.
+4. **Live translation.** Speak; it transcribes, translates, and replies in your
    voice. Use headphones to avoid feedback. Press Ctrl+C to stop.
-4. **Saved audio.** List and replay your generated clips.
+5. **Saved audio.** List and replay your generated clips.
 
 ## How it works
 
@@ -151,6 +160,8 @@ needed):**
 - Translation wiring (English-pivot routing, offline-first package checks).
 - Configuration, output-path construction, and voice/clip discovery.
 - WAV read/write round-trips.
+- Pitch-contour extraction, register-invariant comparison, and chart rendering
+  (verified on synthetic signals).
 - Terminal-menu state, dispatch, and error rendering.
 - That the package imports and the menu runs with only the core dependencies, and
   that the `voice` extra's dependencies resolve on Python 3.12.

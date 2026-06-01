@@ -20,7 +20,7 @@ from echotranslate.tui import TUI
 
 def test_dispatch_exit_returns_false(console: MagicMock, settings: Settings) -> None:
     ui = TUI(console, settings)
-    assert ui._dispatch("5") is False
+    assert ui._dispatch("6") is False
     assert any(
         call.args and "Goodbye" in str(call.args[0])
         for call in console.print.call_args_list
@@ -32,8 +32,9 @@ def test_dispatch_exit_returns_false(console: MagicMock, settings: Settings) -> 
     [
         ("1", "screen_record_voice"),
         ("2", "screen_translate_text"),
-        ("3", "screen_live_translation"),
-        ("4", "screen_list_translations"),
+        ("3", "screen_practice_pronunciation"),
+        ("4", "screen_live_translation"),
+        ("5", "screen_list_translations"),
     ],
 )
 def test_dispatch_invokes_matching_screen(
@@ -88,4 +89,4 @@ def test_menu_never_uses_builtin_input(
     monkeypatch.setattr(tui_module, "list_voices", lambda _settings: [])
     ui = TUI(console, settings)
     ui._render_menu()
-    assert ui._dispatch("5") is False
+    assert ui._dispatch("6") is False
