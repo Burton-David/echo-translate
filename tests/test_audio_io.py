@@ -114,3 +114,20 @@ def test_detect_speech_segments_flushes_trailing_speech() -> None:
 def test_detect_speech_segments_ignores_pure_silence() -> None:
     segments = list(audio.detect_speech_segments([_silent()] * 10, sample_rate=16000))
     assert segments == []
+
+
+def test_detect_speech_segments_drops_brief_blips() -> None:
+    # 0.1s of sound is below the 0.3s floor, so a cough should not emit a segment.
+    chunks = [_loud()] + [_silent()] * 16
+    segments = list(
+        audio.detect_speech_segments(chunks, sample_rate=16000, min_speech_seconds=0.3)
+    )
+    assert segments == []
+
+
+def test_detect_speech_segments_keeps_speech_above_floor() -> None:
+    chunks = [_loud()] * 5 + [_silent()] * 16
+    segments = list(
+        audio.detect_speech_segments(chunks, sample_rate=16000, min_speech_seconds=0.3)
+    )
+    assert len(segments) == 1

@@ -1,84 +1,65 @@
 #!/usr/bin/env python3
-"""Download and verify Whisper model for offline speech recognition.
+"""Download and verify the Whisper model used for EchoTranslate's live mode.
 
-This script downloads the specified Whisper model and verifies it works correctly.
-The model is cached locally for offline use with EchoTranslate.
+Fetches a faster-whisper (CTranslate2) model and confirms it loads, caching it
+locally so live mode can run offline afterwards.
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-import whisper
+from faster_whisper import WhisperModel
 
-# Model sizes in MB (approximate)
-MODEL_SIZES = {"tiny": 39, "base": 74, "small": 244, "medium": 769, "large": 1550}
+# Approximate on-disk sizes in MB for the int8 CTranslate2 models.
+MODEL_SIZES = {"tiny": 39, "base": 74, "small": 244, "medium": 769, "large-v3": 1550}
 
 
-def download_model(model_name="small"):
-    """Download and verify Whisper model.
+def download_model(model_name: str = "small") -> bool:
+    """Download and load a faster-whisper model.
 
     Args:
-        model_name: Model size to download (tiny, base, small, medium, large)
+        model_name: Model size to fetch (tiny, base, small, medium, large-v3).
 
     Returns:
-        bool: True if successful, False otherwise
+        True if the model downloaded and loaded, False otherwise.
     """
     cache_dir = Path.home() / ".cache" / "whisper"
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    model_size = MODEL_SIZES.get(model_name, 244)
-    print(f"Downloading Whisper {model_name} model...")
-    print(f"This will download approximately {model_size}MB")
-    print(f"Model will be cached in: {cache_dir}")
-    print()
+    size = MODEL_SIZES.get(model_name, 244)
+    print(f"Downloading faster-whisper '{model_name}' model (about {size} MB)...")
+    print(f"Caching in: {cache_dir}")
 
     try:
-        print("Downloading model (this may take several minutes)...")
-        model = whisper.load_model(model_name, download_root=str(cache_dir))
-
-        print("\nVerifying model...")
-        import numpy as np
-
-        test_audio = np.zeros(16000, dtype=np.float32)  # one second of silence
-        model.transcribe(test_audio, fp16=False)
-
-        print("\nModel downloaded and verified successfully!")
-        print("You can now use EchoTranslate offline")
-        return True
-
-    except ConnectionError as e:
-        print(f"\nConnection error: {e}")
-        print("Please check your internet connection and try again")
+        WhisperModel(
+            model_name,
+            device="auto",
+            compute_type="int8",
+            download_root=str(cache_dir),
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        print(f"\nCould not download or load the model: {exc}")
+        print("Check your internet connection and the model name, then try again.")
         return False
 
-    except MemoryError:
-        print(f"\nMemory error: Not enough RAM for {model_name} model")
-        print("Try a smaller model (tiny or base)")
-        return False
-
-    except Exception as e:
-        print(f"\nUnexpected error: {e}")
-        print("Please report this issue if it persists")
-        return False
+    print("\nModel downloaded and verified. Live mode can now run offline.")
+    return True
 
 
-def main():
-    """Main entry point for the script."""
+def main() -> None:
+    """Parse arguments and download the requested model."""
     parser = argparse.ArgumentParser(
-        description="Download Whisper model for offline use with EchoTranslate"
+        description="Download the Whisper model for EchoTranslate live mode"
     )
     parser.add_argument(
         "--model",
         default="small",
-        choices=list(MODEL_SIZES.keys()),
+        choices=list(MODEL_SIZES),
         help="Model size to download (default: small)",
     )
-
     args = parser.parse_args()
-
-    success = download_model(args.model)
-    sys.exit(0 if success else 1)
+    sys.exit(0 if download_model(args.model) else 1)
 
 
 if __name__ == "__main__":

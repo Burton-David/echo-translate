@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-# F0 search range for ordinary speech, in hertz.
+# 70-400 Hz spans ordinary speech; going wider invites octave errors.
 _FMIN = 70.0
 _FMAX = 400.0
 # Average per-step pitch deviation (in semitones) that maps to a zero match score.
@@ -119,6 +119,8 @@ def extract_f0(
 
     times = (starts + frame_len / 2.0) / sample_rate
     f0 = np.full(n_frames, np.nan)
+    # Autocorrelation rather than cepstrum: steadier F0 on short, noisy clips
+    # from a laptop or phone mic.
     for i in range(n_frames):
         if reference_rms <= 0.0 or rms[i] < energy_gate:
             continue
@@ -213,14 +215,14 @@ def render_contours(
 
 
 def _autocorrelation(frame: np.ndarray) -> np.ndarray:
-    """Linear autocorrelation of a frame via the FFT."""
     n = frame.size
     spectrum = np.fft.rfft(frame, 2 * n)
     return np.fft.irfft(spectrum * np.conjugate(spectrum), 2 * n)[:n]
 
 
 def _parabolic_peak(values: np.ndarray, index: int) -> float:
-    """Refine an integer peak position with parabolic interpolation."""
+    # Sub-sample interpolation around the integer lag, so F0 is not quantised to
+    # the sample rate.
     if index <= 0 or index >= values.size - 1:
         return float(index)
     previous, here, following = values[index - 1], values[index], values[index + 1]
@@ -231,16 +233,16 @@ def _parabolic_peak(values: np.ndarray, index: int) -> float:
 
 
 def _shape_semitones(contour: PitchContour) -> np.ndarray:
-    """Voiced pitch as semitones relative to the contour's median pitch."""
     voiced = contour.voiced_f0
     if voiced.size < 2:
         return np.empty(0)
+    # Semitones relative to the clip's own median, so a deep voice and a high one
+    # line up on shape instead of absolute pitch.
     reference = float(np.median(voiced))
     return 12.0 * np.log2(voiced / reference)
 
 
 def _dtw_mean_cost(a: np.ndarray, b: np.ndarray) -> float:
-    """Mean per-step cost of the dynamic-time-warping alignment of two series."""
     n, m = a.size, b.size
     cost = np.full((n + 1, m + 1), np.inf)
     cost[0, 0] = 0.0
@@ -271,7 +273,6 @@ def _dtw_mean_cost(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def _resample(values: np.ndarray, width: int) -> np.ndarray:
-    """Linearly resample a 1-D series to exactly ``width`` points."""
     if values.size == width:
         return values
     positions = np.linspace(0.0, values.size - 1, width)

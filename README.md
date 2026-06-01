@@ -39,8 +39,8 @@ quiet and joining the conversation.
   height. This is most useful for tonal languages like Mandarin, where the tones
   *are* pitch shapes.
 - **Live mode:** speak into the mic, and it transcribes you with
-  [Whisper](https://github.com/openai/whisper), translates, and replies in your
-  voice.
+  [faster-whisper](https://github.com/SYSTRAN/faster-whisper), translates, and
+  replies in your voice.
 - **Reviews saved clips:** browse and replay everything you've generated.
 - A small [rich](https://github.com/Textualize/rich) terminal menu ties it
   together.
@@ -76,8 +76,8 @@ The clip plays back in your voice, speaking Spanish.
 ## Installation
 
 EchoTranslate needs **Python 3.10–3.14**. The voice-cloning and live modes
-download large models the first time you use them (~2 GB for XTTS, ~460 MB for
-Whisper); translation-only use needs neither.
+download large models the first time you use them (~2 GB for XTTS, ~240 MB for
+the Whisper model); translation-only use needs neither.
 
 There are three install tiers so you don't have to pull the full machine-learning
 stack just to try translation:
@@ -86,7 +86,7 @@ stack just to try translation:
 | --- | --- | --- |
 | Core | `pip install -e .` | Text translation, the menu, browsing saved clips |
 | + audio | `pip install -e ".[audio]"` | Microphone recording and playback |
-| Full | `pip install -e ".[voice]"` | Voice cloning (XTTS) and live speech-to-text (Whisper) |
+| Full | `pip install -e ".[voice]"` | Voice cloning (XTTS) and live speech-to-text (faster-whisper) |
 
 ```bash
 # 1. Recording/playback need the PortAudio system library (skip for core-only):
@@ -104,7 +104,7 @@ pip install -e ".[voice]"
 export COQUI_TOS_AGREED=1
 python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-dataset/xtts_v2')"
 
-# 5. (Full tier) Download the Whisper model for live mode (~460 MB):
+# 5. (Full tier) Download the Whisper model for live mode (~240 MB):
 python download_whisper.py           # defaults to the 'small' model
 
 # 6. Run it:
@@ -128,8 +128,9 @@ Run `echotranslate` and choose from the menu:
 3. **Practice pronunciation.** Pick a saved clip, record yourself saying it, and
    see your pitch contour drawn over the target's with a match score. The score is
    a pitch-shape similarity, not a full pronunciation grade.
-4. **Live translation.** Speak; it transcribes, translates, and replies in your
-   voice. Use headphones to avoid feedback. Press Ctrl+C to stop.
+4. **Live translation.** Speak; it transcribes (faster-whisper), translates, and
+   replies in your voice. It is near-real-time, not instant: synthesis takes a
+   moment per phrase. Use headphones to avoid feedback. Press Ctrl+C to stop.
 5. **Saved audio.** List and replay your generated clips.
 
 ## How it works
@@ -143,7 +144,7 @@ Translate: English text ──▶ Argos Translate ──▶ target-language text
                                                       ▼
                                   XTTS v2 ──▶ output/<date>/<clip>.wav ──▶ playback
 
-Live:      speech ──▶ Whisper (detect + transcribe) ──▶ Argos ──▶ XTTS ──▶ playback
+Live:      speech ──▶ faster-whisper (detect + transcribe) ──▶ Argos ──▶ XTTS ──▶ playback
 ```
 
 Argos translates through English, so it can reach a target language even without
@@ -199,7 +200,7 @@ models and language packages.
 
 - **OS:** macOS, Linux, or Windows.
 - **Python:** 3.10–3.14.
-- **Disk:** ~2.5–3 GB for the full install (XTTS ~2 GB, Whisper ~460 MB, plus
+- **Disk:** ~2.5–3 GB for the full install (XTTS ~2 GB, Whisper ~240 MB, plus
   language packages).
 - **Audio:** a microphone for recording and live mode; PortAudio installed.
 - **Compute:** CPU-only inference; 8 GB RAM recommended.

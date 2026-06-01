@@ -24,6 +24,11 @@ WHISPER_DEFAULT_MODEL = "small"
 RECORD_SAMPLE_RATE = 22050
 LIVE_SAMPLE_RATE = 16000
 
+# Live mode favours responsiveness: close a turn after a short pause and ignore
+# blips too brief to be speech, so transcription does not fire on a cough.
+LIVE_SILENCE_SECONDS = 0.8
+LIVE_MIN_SPEECH_SECONDS = 0.3
+
 
 @dataclass(frozen=True)
 class Settings:

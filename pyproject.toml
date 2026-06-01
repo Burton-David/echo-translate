@@ -48,7 +48,7 @@ audio = [
 voice = [
     "echotranslate[audio]",
     "coqui-tts>=0.27,<0.28",
-    "openai-whisper>=20231117",
+    "faster-whisper>=1.0,<2",
 ]
 dev = [
     "pytest>=8,<9",
@@ -91,7 +91,7 @@ warn_redundant_casts = true
 [[tool.mypy.overrides]]
 module = [
     "TTS.*",
-    "whisper.*",
+    "faster_whisper.*",
     "sounddevice.*",
     "soundfile.*",
     "argostranslate.*",

@@ -1,11 +1,13 @@
-"""Speech-to-text with OpenAI Whisper, for live mode.
+"""Speech-to-text with faster-whisper, for live mode.
 
-Whisper transcribes captured audio and detects its language so the live loop can
-translate it. The library is imported lazily inside :meth:`SpeechTranscriber.load`
-so the package installs and tests without it.
+faster-whisper runs Whisper through CTranslate2, which is several times quicker
+than the reference implementation and lets us load an int8-quantised model for
+low-latency transcription on CPU (and float-precision on CUDA via
+``device="auto"``). The library is imported lazily inside
+:meth:`SpeechTranscriber.load` so the package installs and tests without it.
 
-Audio is passed to Whisper as an in-memory float32 array, so no system ffmpeg is
-required (ffmpeg is only needed when Whisper loads audio from a file path).
+Audio is passed as an in-memory float32 array, and faster-whisper bundles its own
+media decoding (PyAV), so no system ffmpeg is required.
 """
 
 from __future__ import annotations
@@ -36,7 +38,7 @@ class TranscriptionResult:
 
 
 class SpeechTranscriber:
-    """Lazy wrapper around a Whisper model.
+    """Lazy wrapper around a faster-whisper model.
 
     Constructing this does not import or load anything; call :meth:`load` first.
     """
@@ -51,33 +53,36 @@ class SpeechTranscriber:
         return self._model is not None
 
     def load(self, *, progress: ProgressCallback | None = None) -> None:
-        """Import Whisper and load the configured model.
+        """Import faster-whisper and load the configured model.
 
         Args:
             progress: Optional callback for a "loading..." status message.
 
         Raises:
             HeavyDependencyError: If the ``voice`` extra is not installed.
-            ModelNotAvailableError: If the model weights cannot be found or downloaded.
+            ModelNotAvailableError: If the model weights cannot be found or
+                downloaded.
         """
         if self._model is not None:
             return
         try:
-            import whisper
+            from faster_whisper import WhisperModel
         except ImportError as exc:
             raise HeavyDependencyError(
-                "Live mode needs the 'voice' extra (which includes Whisper):\n"
+                "Live mode needs the 'voice' extra (which includes faster-whisper):\n"
                 "    pip install 'echotranslate[voice]'"
             ) from exc
 
         if progress is not None:
             progress("Loading speech recognition model...")
         try:
-            self._model = whisper.load_model(
+            self._model = WhisperModel(
                 self._settings.whisper_model,
+                device="auto",
+                compute_type="int8",
                 download_root=str(self._settings.whisper_cache_dir),
             )
-        except (RuntimeError, FileNotFoundError) as exc:
+        except (OSError, RuntimeError, ValueError) as exc:
             raise ModelNotAvailableError(
                 f"Could not load the Whisper '{self._settings.whisper_model}' "
                 "model. Download it while online with:\n"
@@ -98,7 +103,7 @@ class SpeechTranscriber:
         """
         if self._model is None:
             raise ModelNotAvailableError("Call load() before transcribing.")
-        result = self._model.transcribe(audio, fp16=False)
-        text = str(result.get("text", "")).strip()
-        language = str(result.get("language", "en"))
-        return TranscriptionResult(text=text, language=language)
+        samples = np.asarray(audio, dtype=np.float32).reshape(-1)
+        segments, info = self._model.transcribe(samples, language=None)
+        text = " ".join(segment.text.strip() for segment in segments).strip()
+        return TranscriptionResult(text=text, language=str(info.language))
