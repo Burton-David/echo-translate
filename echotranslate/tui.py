@@ -39,9 +39,11 @@ from echotranslate.errors import EchoTranslateError
 from echotranslate.languages import (
     LANGUAGES,
     Language,
+    by_argos_code,
     by_menu_number,
     menu_choices,
 )
+from echotranslate.pitch import compare_contours, extract_f0, render_contours
 from echotranslate.synthesis import VoiceSynthesizer
 from echotranslate.transcription import SpeechTranscriber
 from echotranslate.voices import list_voices, voice_path
@@ -49,6 +51,23 @@ from echotranslate.voices import list_voices, voice_path
 _BANNER = "EchoTranslate: your voice, another language"
 
 _MIN_PROFILE_SECONDS = 10.0
+
+
+def _language_from_clip(path: Path) -> Language | None:
+    """Infer a saved clip's target language from its ``..._<code>.wav`` name."""
+    stem = path.stem
+    code = stem.rsplit("_", 1)[-1] if "_" in stem else ""
+    return by_argos_code(code)
+
+
+def _colorize_contour(line: str) -> str:
+    """Apply rich colour markup to the markers in a contour-chart line."""
+    palette = {
+        "#": "[green]#[/green]",
+        "o": "[cyan]o[/cyan]",
+        "*": "[magenta]*[/magenta]",
+    }
+    return "".join(palette.get(char, char) for char in line)
 
 
 class TUI:
@@ -66,7 +85,7 @@ class TUI:
             self._render_menu()
             choice = Prompt.ask(
                 "Select an option",
-                choices=["1", "2", "3", "4", "5"],
+                choices=["1", "2", "3", "4", "5", "6"],
                 console=self.console,
             )
             if not self._dispatch(choice):
@@ -74,15 +93,16 @@ class TUI:
 
     def _dispatch(self, choice: str) -> bool:
         """Run the screen for ``choice``; return ``False`` to exit the menu."""
-        if choice == "5":
+        if choice == "6":
             self.console.print("Goodbye.")
             return False
 
         screens = {
             "1": self.screen_record_voice,
             "2": self.screen_translate_text,
-            "3": self.screen_live_translation,
-            "4": self.screen_list_translations,
+            "3": self.screen_practice_pronunciation,
+            "4": self.screen_live_translation,
+            "5": self.screen_list_translations,
         }
         try:
             screens[choice]()
@@ -153,6 +173,32 @@ class TUI:
         if self._confirm("Play it now?"):
             samples, sample_rate = read_wav(output_path)
             play(samples, sample_rate)
+        if self._confirm("Practice your pronunciation now?"):
+            self._run_pitch_comparison(output_path, language)
+        self._pause()
+
+    def screen_practice_pronunciation(self) -> None:
+        """Record an attempt at a saved clip and compare your pitch to it."""
+        self._header("Practice pronunciation")
+        clips = self._saved_clips()
+        if not clips:
+            self.console.print(
+                "[yellow]No saved clips yet. Use option 2 to generate one "
+                "first.[/yellow]"
+            )
+            self._pause()
+            return
+
+        shown = clips[:20]
+        for index, path in enumerate(shown, 1):
+            self.console.print(f"  {index}. {path.name}")
+        choice = IntPrompt.ask(
+            "Which clip do you want to practise",
+            choices=[str(i) for i in range(1, len(shown) + 1)],
+            console=self.console,
+        )
+        target = shown[choice - 1]
+        self._run_pitch_comparison(target, _language_from_clip(target))
         self._pause()
 
     def screen_live_translation(self) -> None:
@@ -186,11 +232,7 @@ class TUI:
     def screen_list_translations(self) -> None:
         """List rendered audio files, most recent first, and optionally play one."""
         self._header("Saved audio")
-        files = sorted(
-            self.settings.output_dir.rglob("*.wav"),
-            key=lambda path: path.stat().st_mtime,
-            reverse=True,
-        )
+        files = self._saved_clips()
         if not files:
             self.console.print("[yellow]No saved audio yet.[/yellow]")
             self._pause()
@@ -221,6 +263,47 @@ class TUI:
                 samples, sample_rate = read_wav(shown[index])
                 play(samples, sample_rate)
         self._pause()
+
+    def _saved_clips(self) -> list[Path]:
+        """Return saved output clips, most recent first."""
+        return sorted(
+            self.settings.output_dir.rglob("*.wav"),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        )
+
+    def _run_pitch_comparison(
+        self, target_wav: Path, language: Language | None
+    ) -> None:
+        """Record the user's attempt and chart its pitch against ``target_wav``."""
+        self.console.print("\nNow say it yourself.")
+        self.console.input("Press Enter to start recording...")
+        self.console.print("[bold red]Recording. Press Enter to stop.[/bold red]")
+        attempt = record_until_enter(
+            RECORD_SAMPLE_RATE, wait_for_stop=lambda: self.console.input()
+        )
+
+        target_samples, target_rate = read_wav(target_wav)
+        target_contour = extract_f0(target_samples, target_rate)
+        attempt_contour = extract_f0(attempt, RECORD_SAMPLE_RATE)
+        result = compare_contours(target_contour, attempt_contour)
+        if not result.enough_data:
+            self.console.print(f"[yellow]{result.message}[/yellow]")
+            return
+
+        self.console.print("\n[bold]Pitch contour[/bold] (top = higher pitch)")
+        self.console.print(
+            "[green]#[/green] target   [cyan]o[/cyan] you   "
+            "[magenta]*[/magenta] both\n"
+        )
+        for line in render_contours(target_contour, attempt_contour):
+            self.console.print(_colorize_contour(line))
+        self.console.print(f"\nMatch: [bold]{result.match:.0f}%[/bold]")
+        if language is not None and language.tonal:
+            self.console.print(
+                "[dim]This language is tonal: match the shape of the line, "
+                "not its height.[/dim]"
+            )
 
     def _handle_live_segment(
         self, segment: np.ndarray, voice: str, language: Language
@@ -328,9 +411,10 @@ class TUI:
         self.console.print("[bold]Main menu[/bold]")
         self.console.print("  1. Record a voice profile")
         self.console.print("  2. Translate text and speak it in your voice")
-        self.console.print("  3. Live translation")
-        self.console.print("  4. Saved audio")
-        self.console.print("  5. Exit\n")
+        self.console.print("  3. Practice pronunciation (compare your pitch)")
+        self.console.print("  4. Live translation")
+        self.console.print("  5. Saved audio")
+        self.console.print("  6. Exit\n")
 
     def _header(self, title: str) -> None:
         """Print a screen header panel."""

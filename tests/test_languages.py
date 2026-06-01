@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from echotranslate import languages
-from echotranslate.languages import LANGUAGES, by_menu_number
+from echotranslate.languages import LANGUAGES, by_argos_code, by_menu_number
 
 
 def test_registry_has_expected_size_and_english_first() -> None:
@@ -45,6 +45,18 @@ def test_translation_targets_exclude_english() -> None:
     assert "en" not in targets
     assert len(targets) == 10
     assert "zh" in targets and "es" in targets
+
+
+def test_only_chinese_is_marked_tonal() -> None:
+    assert by_menu_number(3).tonal is True
+    assert by_menu_number(2).tonal is False
+    assert LANGUAGES[0].tonal is False
+
+
+def test_by_argos_code_lookup() -> None:
+    assert by_argos_code("zh").display.startswith("Chinese")
+    assert by_argos_code("es").argos_code == "es"
+    assert by_argos_code("xx") is None
 
 
 def test_no_duplicate_display_names_and_codes_non_empty() -> None:

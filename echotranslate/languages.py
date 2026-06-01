@@ -22,12 +22,15 @@ class Language:
         region: Short note on the dialect/region the models target.
         argos_code: ISO 639-1 code passed to Argos Translate (English is the pivot).
         xtts_code: Locale tag passed to the XTTS synthesis model.
+        tonal: Whether the language uses lexical tone, so pitch shape carries
+            meaning and the contour feedback is especially relevant.
     """
 
     display: str
     region: str
     argos_code: str
     xtts_code: str
+    tonal: bool = False
 
     @property
     def is_english(self) -> bool:
@@ -39,7 +42,7 @@ class Language:
 LANGUAGES: tuple[Language, ...] = (
     Language("English", "Reference voice check", "en", "en"),
     Language("Spanish (Español)", "Latin America/Spain", "es", "es"),
-    Language("Chinese (中文)", "Mainland", "zh", "zh-cn"),
+    Language("Chinese (中文)", "Mainland", "zh", "zh-cn", tonal=True),
     Language("French (Français)", "France", "fr", "fr"),
     Language("Arabic (العربية)", "Middle East", "ar", "ar"),
     Language("German (Deutsch)", "Germany", "de", "de"),
@@ -79,3 +82,11 @@ def menu_choices() -> list[str]:
 def translation_targets() -> list[str]:
     """Return the Argos codes that need an installed package (English excluded)."""
     return [lang.argos_code for lang in LANGUAGES if not lang.is_english]
+
+
+def by_argos_code(code: str) -> Language | None:
+    """Return the language with the given Argos code, or ``None`` if unknown."""
+    for lang in LANGUAGES:
+        if lang.argos_code == code:
+            return lang
+    return None
