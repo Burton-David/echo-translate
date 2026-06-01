@@ -34,7 +34,6 @@ class Language:
 
     @property
     def is_english(self) -> bool:
-        """Whether this is the English reference language (no translation needed)."""
         return self.argos_code == "en"
 
 

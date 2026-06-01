@@ -67,7 +67,6 @@ def default_settings(base_dir: Path | None = None) -> Settings:
 
 
 def ensure_dirs(settings: Settings) -> None:
-    """Create the voices and output directories if they do not already exist."""
     settings.voices_dir.mkdir(parents=True, exist_ok=True)
     settings.output_dir.mkdir(parents=True, exist_ok=True)
 

@@ -30,10 +30,8 @@ def list_voices(settings: Settings) -> list[str]:
 
 
 def voice_path(settings: Settings, name: str) -> Path:
-    """Return the WAV path for a voice profile name."""
     return settings.voices_dir / f"{name}.wav"
 
 
 def voice_exists(settings: Settings, name: str) -> bool:
-    """Return whether a voice profile WAV exists for ``name``."""
     return voice_path(settings, name).is_file()
