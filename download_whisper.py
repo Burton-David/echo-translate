@@ -11,8 +11,10 @@ from pathlib import Path
 
 from faster_whisper import WhisperModel
 
-# Approximate on-disk sizes in MB for the int8 CTranslate2 models.
-MODEL_SIZES = {"tiny": 39, "base": 74, "small": 244, "medium": 769, "large-v3": 1550}
+# Download sizes in MB of the Systran/faster-whisper-* repos (checked Sep 2026).
+# The fp16 weights are what's fetched; compute_type="int8" only quantizes them
+# at load time, so it doesn't shrink the download.
+MODEL_SIZES = {"tiny": 78, "base": 148, "small": 486, "medium": 1531, "large-v3": 3091}
 
 
 def download_model(model_name: str = "small") -> bool:
@@ -27,7 +29,7 @@ def download_model(model_name: str = "small") -> bool:
     cache_dir = Path.home() / ".cache" / "whisper"
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    size = MODEL_SIZES.get(model_name, 244)
+    size = MODEL_SIZES.get(model_name, 486)
     print(f"Downloading faster-whisper '{model_name}' model (about {size} MB)...")
     print(f"Caching in: {cache_dir}")
 
