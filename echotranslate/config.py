@@ -17,7 +17,7 @@ from pathlib import Path
 XTTS_MODEL_ID = "tts_models/multilingual/multi-dataset/xtts_v2"
 
 # Whisper model size used for live speech-to-text. "small" balances accuracy and
-# footprint (~460 MB); see ``download_whisper.py`` for the other options.
+# footprint (~490 MB download); see ``download_whisper.py`` for the other options.
 WHISPER_DEFAULT_MODEL = "small"
 
 # XTTS expects its speaker reference clip at 22.05 kHz; Whisper expects 16 kHz.

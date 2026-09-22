@@ -79,7 +79,7 @@ The clip plays back in your voice, speaking Spanish.
 ## Installation
 
 EchoTranslate needs **Python 3.10–3.14**. The voice-cloning and live modes
-download large models the first time you use them (~2 GB for XTTS, ~240 MB for
+download large models the first time you use them (~2 GB for XTTS, ~490 MB for
 the Whisper model); translation-only use needs neither.
 
 There are three install tiers so you don't have to pull the full machine-learning
@@ -107,7 +107,7 @@ pip install -e ".[voice]"
 export COQUI_TOS_AGREED=1
 python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-dataset/xtts_v2')"
 
-# 5. (Full tier) Download the Whisper model for live mode (~240 MB):
+# 5. (Full tier) Download the Whisper model for live mode (~490 MB):
 python download_whisper.py           # defaults to the 'small' model
 
 # 6. Run it:
@@ -120,7 +120,8 @@ particular CUDA version), install it from the
 
 ## Usage
 
-Run `echotranslate` and choose from the menu:
+Run `echotranslate` and choose from the menu (`echotranslate --help` shows where
+profiles and clips are stored):
 
 1. **Record a voice profile.** Speak naturally; a longer, varied sample clones
    better. See [`voice_script.txt`](voice_script.txt) for guidance on what to say.
@@ -203,7 +204,7 @@ models and language packages.
 
 - **OS:** macOS or Linux. Windows may work but is untested.
 - **Python:** 3.10–3.14.
-- **Disk:** ~2.5–3 GB for the full install (XTTS ~2 GB, Whisper ~240 MB, plus
+- **Disk:** ~2.5–3 GB for the full install (XTTS ~2 GB, Whisper ~490 MB, plus
   language packages).
 - **Audio:** a microphone for recording and live mode; PortAudio installed.
 - **Compute:** CPU-only inference; 8 GB RAM recommended.
