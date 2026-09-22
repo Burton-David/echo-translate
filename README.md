@@ -1,5 +1,7 @@
 # EchoTranslate
 
+[![CI](https://github.com/Burton-David/echo-translate/actions/workflows/ci.yml/badge.svg)](https://github.com/Burton-David/echo-translate/actions/workflows/ci.yml)
+
 EchoTranslate is a local, offline command-line tool. You record a short sample of
 your voice once, type (or speak) some English, and it plays the translation back
 to you in another language, in your own voice.
@@ -53,11 +55,12 @@ $ echotranslate
 Main menu
   1. Record a voice profile
   2. Translate text and speak it in your voice
-  3. Live translation
-  4. Saved audio
-  5. Exit
+  3. Practice pronunciation (compare your pitch)
+  4. Live translation
+  5. Saved audio
+  6. Exit
 
-Select an option [1/2/3/4/5]: 2
+Select an option [1/2/3/4/5/6]: 2
 ```
 
 Pick your voice profile and Spanish, then type some English:
@@ -165,7 +168,7 @@ needed):**
   (verified on synthetic signals).
 - Terminal-menu state, dispatch, and error rendering.
 - That the package imports and the menu runs with only the core dependencies, and
-  that the `voice` extra's dependencies resolve on Python 3.12.
+  that the `voice` extra's dependencies resolve, on every Python from 3.10 to 3.14.
 
 **Not run automatically (needs the downloaded models and a microphone):**
 
@@ -198,7 +201,7 @@ models and language packages.
 
 ## System requirements
 
-- **OS:** macOS, Linux, or Windows.
+- **OS:** macOS or Linux. Windows may work but is untested.
 - **Python:** 3.10–3.14.
 - **Disk:** ~2.5–3 GB for the full install (XTTS ~2 GB, Whisper ~240 MB, plus
   language packages).
