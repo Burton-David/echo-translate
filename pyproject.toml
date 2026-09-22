@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Education",
     "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
@@ -97,6 +98,15 @@ module = [
     "argostranslate.*",
 ]
 ignore_missing_imports = true
+
+# numpy ships PEP 695 `type` statements in its stubs, which mypy refuses to
+# parse while python_version targets anything below 3.12. It aborts before
+# checking a single line of the package, so the type gate silently stops.
+# Skip numpy's stubs rather than raise the target and stop checking 3.10.
+[[tool.mypy.overrides]]
+module = ["numpy", "numpy.*"]
+follow_imports = "skip"
+follow_imports_for_stubs = true
 
 [tool.pytest.ini_options]
 addopts = "-m 'not heavy'"
